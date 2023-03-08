@@ -23,24 +23,16 @@
      debug:
        var: update.stdout_lines 
 
-   - name: Verifica a versão do
-     command: "java -version"
-     register: java_check
-     changed_when: false
-     check_mode: no
-     ignore_errors: true
-
-
-   - name: printa a versão do java 
-     debug:
-       var: java_check.stderr_lines 
-
-   #- name: Instalar o Java
-     #yum:
-      #name: java-11-openjdk-devel
-      #state: latest
-     #when: java_check.stat.exists == false
+   #- name: Verifica a versão do
+     #command: "java -version"
+     #register: java_check
+     #changed_when: false
+     #check_mode: no
      #ignore_errors: true
+
+  #  - name: printa a versão do java 
+  #    debug:
+  #      var: java_check.stderr_lines 
 
    - name: Criando grupo
      become: yes
@@ -54,7 +46,7 @@
         name: tomcat
         state: present
    
-   - name: Criando diretorio /opt/tomcat8
+   - name: Criando diretorio /opt/tomcat
      become: yes
      file:
        path: /opt/tomcat
@@ -72,6 +64,13 @@
        remote_src: yes
        group: tomcat
        owner: tomcat
+#######################################################
+
+   - name: Mover os arquivos para o diretorio tomcat
+     become: yes
+     file:
+       src: "/opt/tomcat/apache-tomcat-8.5.87/*"
+       dest: "/opt/tomcat/"
     
 
    - name: Criando o service para o tomcat
@@ -85,12 +84,12 @@
         [Service]
         Type=forking
         User=tomcat
-        Environment="CATALINA_PID=/opt/tomcat/apache-tomcat-8.5.85/logs/tomcat.pid"
-        Environment="CATALINA_BASE=/opt/tomcat/apache-tomcat-8.5.85"
-        Environment="CATALINA_HOME=/opt/tomcat/apache-tomcat-8.5.85"
+        Environment="CATALINA_PID=/opt/tomcat/logs/tomcat.pid"
+        Environment="CATALINA_BASE=/opt/tomcat/"
+        Environment="CATALINA_HOME=/opt/tomcat/"
         Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
-        ExecStart=/opt/tomcat/apache-tomcat-8.5.85/bin/startup.sh
-        ExecStop=/opt/tomcat/apache-tomcat-8.5.85/shutdown.sh
+        ExecStart=/opt/tomcat/bin/startup.sh
+        ExecStop=/opt/tomcat/bin/shutdown.sh
         Restart=on-abnormal
         [Install]
         WantedBy=multi-user.target
