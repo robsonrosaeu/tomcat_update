@@ -9,7 +9,7 @@
   tasks:
     - name: Verifica a versão do Tomcat
       shell:
-        cd /opt/tomcat/apache-tomcat-8.5.85/bin/ && ./version.sh | grep number
+        cd /opt/tomcat/bin/ && ./version.sh | grep number
       register: version
     
     - debug:
@@ -44,8 +44,8 @@
 #######################################################################    
     - name: Muda o aqruivo server.xml para server.xml_bkp
       copy:
-        src: /opt/tomcat9/apache-tomcat-9.0.71/conf/server.xml
-        dest: /opt/tomcat9/apache-tomcat-9.0.71/conf/server.xml_bkp
+        src: /opt/tomcat9/conf/server.xml
+        dest: /opt/tomcat9/conf/server.xml_bkp
         mode: 0755
         remote_src: yes
         group: tomcat
@@ -54,8 +54,8 @@
 
     - name: Copia o arquivo server.xml
       copy:
-        src: /opt/tomcat/apache-tomcat-8.5.85/conf/server.xml
-        dest: /opt/tomcat9/apache-tomcat-9.0.71/conf/server.xml
+        src: /opt/tomcat/conf/server.xml
+        dest: /opt/tomcat9/conf/server.xml
         mode: 0755
         remote_src: yes
         group: tomcat
@@ -73,12 +73,12 @@
           Type=forking
           User=tomcat
           Group=tomcat
-          Environment="CATALINA_PID=/opt/tomcat9/apache-tomcat-9.0.71/logs/tomcat.pid"
-          Environment="CATALINA_BASE=/opt/tomcat9/apache-tomcat-9.0.71"
-          Environment="CATALINA_HOME=/opt/tomcat9/apache-tomcat-9.0.71"
+          Environment="CATALINA_PID=/opt/tomcat9/logs/tomcat.pid"
+          Environment="CATALINA_BASE=/opt/tomcat9/"
+          Environment="CATALINA_HOME=/opt/tomcat9/"
           Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
-          ExecStart=/opt/tomcat9/apache-tomcat-9.0.71/bin/startup.sh
-          ExecStop=/opt/tomcat9/apache-tomcat-9.0.71/shutdown.sh
+          ExecStart=/opt/tomcat9/bin/startup.sh
+          ExecStop=/opt/tomcat9/bin/shutdown.sh
           Restart=on-abnormal
           [Install]
           WantedBy=multi-user.target
