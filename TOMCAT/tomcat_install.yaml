@@ -39,7 +39,7 @@
      yum:
       name: java-11-openjdk-devel
       state: latest
-     when: java_check.stat.exists == true
+     when: java_check.stat.exists == false
      ignore_errors: true
 
    - name: Criando grupo
