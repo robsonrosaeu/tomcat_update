@@ -2,7 +2,7 @@
 - name: Atualiza Tomcat9
   hosts: all
   vars:
-    download_url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.71/bin/apache-tomcat-9.0.71.tar.gz
+    download_url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.73/bin/apache-tomcat-9.0.73.zip
 
 
 
@@ -12,8 +12,9 @@
         cd /opt/tomcat/bin/ && ./version.sh | grep number
       register: version
     
-    - debug:
-        msg: Versão do tomcat {{ version }}
+    - name: printe update 
+      debug:
+        var: version.stdout_line
 
     - name: Stop do ambiente
       become: yes
@@ -45,7 +46,7 @@
 
     - name: Copiar arquivos e manter as permissoes 
       copy:
-        src: /opt/tomcat9/apache-tomcat-9.0.71/
+        src: /opt/tomcat9/apache-tomcat-9.0.73/
         dest: /opt/tomcat9/
         remote_src: yes
         owner: tomcat
@@ -54,7 +55,7 @@
     
     - name: Remover diretório antigo
       file:
-        path: /opt/tomcat9/apache-tomcat-9.0.71/
+        path: /opt/tomcat9/apache-tomcat-9.0.73/
         state: absent 
 
 
