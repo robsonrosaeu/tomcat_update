@@ -63,8 +63,14 @@
        owner: tomcat
 #######################################################
 
-   - name: Copiar conteúdo do diretório
-     command: rsync -a /opt/tomcat/apache-tomcat-8.5.87/ /opt/tomcat/
+   - name: Copiar arquivos e manter as permissoes 
+     copy:
+       src: /opt/tomcat/apache-tomcat-8.5.87/
+       dest: /opt/tomcat/
+       remote_src: yes
+       owner: tomcat
+       group: tomcat
+       mode: 0775
    
    - name: Remover diretório antigo
      file:
