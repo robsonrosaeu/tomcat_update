@@ -9,6 +9,14 @@
    - name: Update do sistema
      command: "yum update -y && yum install java -y"
      register: update
+   
+   - name: Instala o java
+     command: "yum install java -y"
+     register: java_check
+   
+   - name: printe update 
+     debug:
+       var: java_check.stdout_lines 
            
    - name: Install a list of packages
      yum:
@@ -22,17 +30,6 @@
    - name: printe update 
      debug:
        var: update.stdout_lines 
-
-   #- name: Verifica a versão do
-     #command: "java -version"
-     #register: java_check
-     #changed_when: false
-     #check_mode: no
-     #ignore_errors: true
-
-  #  - name: printa a versão do java 
-  #    debug:
-  #      var: java_check.stderr_lines 
 
    - name: Criando grupo
      become: yes
@@ -66,15 +63,14 @@
        owner: tomcat
 #######################################################
 
-   - name: Mover os arquivos para o diretorio tomcat
-     become: yes
-     file:
-       src: "/opt/tomcat/apache-tomcat-8.5.87/*"
-       dest: "/opt/tomcat/"
+   - name: Copiar conteúdo do diretório
+     command: rsync -a /opt/tomcat/apache-tomcat-8.5.87/ /opt/tomcat/
    
-   - name: Deleta o repositorio antigo
-     become: yes
-     command: rm -rf "/opt/tomcat/apache-tomcat-8.5.87"
+   - name: Remover diretório antigo
+     file:
+       path: /opt/tomcat/apache-tomcat-8.5.87
+       state: absent
+    
 
    - name: Criando o service para o tomcat
      become: yes
