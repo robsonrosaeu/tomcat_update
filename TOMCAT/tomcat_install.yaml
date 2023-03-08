@@ -10,6 +10,11 @@
      command: "yum update -y"
      register: update
    
+   tasks:
+   - name: Update do sistema
+     command: "yum install java -y"
+     
+     
    - name: Install a list of packages
      yum:
        name: "{{ packages }}"
