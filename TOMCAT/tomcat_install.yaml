@@ -71,7 +71,10 @@
      file:
        src: "/opt/tomcat/apache-tomcat-8.5.87/*"
        dest: "/opt/tomcat/"
-    
+   
+   - name: Deleta o repositorio antigo
+     become: yes
+     command: rm -rf "/opt/tomcat/apache-tomcat-8.5.87"
 
    - name: Criando o service para o tomcat
      become: yes
