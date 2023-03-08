@@ -1,0 +1,109 @@
+---
+- name: Atualiza Tomcat9
+  hosts: all
+  vars:
+    download_url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.71/bin/apache-tomcat-9.0.71.tar.gz
+
+
+
+  tasks:
+    - name: Verifica a versão do Tomcat
+      shell:
+        cd /opt/tomcat/apache-tomcat-8.5.85/bin/ && ./version.sh | grep number
+      register: version
+    
+    - debug:
+        msg: Versão do tomcat {{ version }}
+
+    - name: Stop do ambiente
+      become: yes
+      systemd:
+          name: tomcat
+          enabled: yes
+          state: stopped
+######################################################################
+
+    - name: Criando diretorio /opt/tomcat9
+      become: yes
+      file:
+        path: /opt/tomcat9
+        state: directory
+        mode: 0755
+        owner: tomcat
+        group: tomcat
+   
+    - name: Download Tomcat usando unarchive
+      become: yes
+      unarchive:
+        src: "{{download_url}}"
+        dest: /opt/tomcat9/
+        mode: 0755
+        remote_src: yes
+        group: tomcat
+        owner: tomcat
+#######################################################################    
+    - name: Muda o aqruivo server.xml para server.xml_bkp
+      copy:
+        src: /opt/tomcat9/apache-tomcat-9.0.71/conf/server.xml
+        dest: /opt/tomcat9/apache-tomcat-9.0.71/conf/server.xml_bkp
+        mode: 0755
+        remote_src: yes
+        group: tomcat
+        owner: tomcat
+        backup: yes
+
+    - name: Copia o arquivo server.xml
+      copy:
+        src: /opt/tomcat/apache-tomcat-8.5.85/conf/server.xml
+        dest: /opt/tomcat9/apache-tomcat-9.0.71/conf/server.xml
+        mode: 0755
+        remote_src: yes
+        group: tomcat
+        owner: tomcat
+    
+    - name: Criando o service para o tomcat
+      become: yes
+      copy: 
+        content: |-
+          [Unit]
+          Description=Tomcat Service
+          Requires=network.target
+          After=network.target
+          [Service]
+          Type=forking
+          User=tomcat
+          Group=tomcat
+          Environment="CATALINA_PID=/opt/tomcat9/apache-tomcat-9.0.71/logs/tomcat.pid"
+          Environment="CATALINA_BASE=/opt/tomcat9/apache-tomcat-9.0.71"
+          Environment="CATALINA_HOME=/opt/tomcat9/apache-tomcat-9.0.71"
+          Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+          ExecStart=/opt/tomcat9/apache-tomcat-9.0.71/bin/startup.sh
+          ExecStop=/opt/tomcat9/apache-tomcat-9.0.71/shutdown.sh
+          Restart=on-abnormal
+          [Install]
+          WantedBy=multi-user.target
+        dest: /etc/systemd/system/tomcat.service
+   
+    - name: Reload the SystemD to re-read configurations
+      become: yes
+      systemd:
+          daemon-reload: yes
+   
+    - name: Enable tomcat service e iniciando
+      become: yes
+      systemd:
+          name: tomcat
+          enabled: yes
+          state: started
+   
+    - name: Conectado tomcat server na porta 8080 e checando status 200 - Try 5 times
+      tags: test
+      uri:
+        url: http://localhost:8080
+      register: result
+      until: "result.status == 200"
+      retries: 5
+      delay: 10
+        
+   
+        

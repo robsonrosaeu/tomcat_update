@@ -1,0 +1,1 @@
+scp -r root@192.168.15.6:/root/.ssh/* /root/.ssh/

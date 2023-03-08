@@ -1,0 +1,109 @@
+---
+- name: Download Tomcat8 
+  hosts: tomcat
+  vars:
+    download_url: https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.86/bin/apache-tomcat-8.5.86.zip
+  
+
+  tasks:
+   - name: Update do sistema
+     command: "yum update -y"
+     register: update
+
+   - name: printe update 
+     debug:
+       var: update.stdout_lines 
+
+   - name: Verifica a versão do
+     command: "java -version"
+     register: java_check
+     changed_when: false
+     check_mode: no
+     ignore_errors: true
+
+
+   - name: printa a versão do java 
+     debug:
+       var: java_check.stderr_lines 
+
+   - name: Instalar o Java
+     yum:
+      name: java-11-openjdk-devel
+      state: present
+     when: java_check.stat.exists == true
+     ignore_errors: true
+
+   - name: Criando grupo
+     become: yes
+     group: 
+      name: tomcat
+      state: present
+   
+   - name: Criando usuario
+     become: yes
+     user:
+        name: tomcat
+        state: present
+   
+   - name: Criando diretorio /opt/tomcat8
+     become: yes
+     file:
+       path: /opt/tomcat8
+       state: directory
+       mode: 0755
+       owner: tomcat
+       group: tomcat
+   
+   - name: Download Tomcat usando unarchive
+     become: yes
+     unarchive:
+       src: "{{download_url}}"
+       dest: /opt/tomcat8/
+       mode: 0755
+       remote_src: yes
+       group: tomcat
+       owner: tomcat
+    
+
+   - name: Criando o service para o tomcat
+     become: yes
+     copy: 
+      content: |-
+        [Unit]
+        Description=Tomcat Service
+        Requires=network.target
+        After=network.target
+        [Service]
+        Type=forking
+        User=tomcat
+        Environment="CATALINA_PID=/opt/tomcat8/apache-tomcat-8.5.85/logs/tomcat.pid"
+        Environment="CATALINA_BASE=/opt/tomcat8/apache-tomcat-8.5.85"
+        Environment="CATALINA_HOME=/opt/tomcat8/apache-tomcat-8.5.85"
+        Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+        ExecStart=/opt/tomcat8/apache-tomcat-8.5.85/bin/startup.sh
+        ExecStop=/opt/tomcat8/apache-tomcat-8.5.85/shutdown.sh
+        Restart=on-abnormal
+        [Install]
+        WantedBy=multi-user.target
+      dest: /etc/systemd/system/tomcat.service
+   
+   - name: Reload the SystemD to re-read configurations
+     become: yes
+     systemd:
+        daemon-reload: yes
+   
+   - name: Enable tomcat service e iniciando
+     become: yes
+     systemd:
+        name: tomcat
+        enabled: yes
+        state: started
+   
+   - name: Conectado tomcat server na porta 8080 e checando status 200 - Try 5 times
+     tags: test
+     uri:
+       url: http://localhost:8080
+     register: result
+     until: "result.status == 200"
+     retries: 5
+     delay: 10
