@@ -9,6 +9,15 @@
    - name: Update do sistema
      command: "yum update -y"
      register: update
+   
+   - name: Install a list of packages
+     yum:
+       name: "{{ packages }}"
+     vars:
+       packages:
+       - wget
+       - mlocate
+       - unzip
 
    - name: printe update 
      debug:
