@@ -41,7 +41,25 @@
         remote_src: yes
         group: tomcat
         owner: tomcat
-#######################################################################    
+#######################################################################   
+
+    - name: Copiar arquivos e manter as permissoes 
+      copy:
+        src: /opt/tomcat9/apache-tomcat-9.0.71/
+        dest: /opt/tomcat9/
+        remote_src: yes
+        owner: tomcat
+        group: tomcat
+        mode: 0775
+    
+    - name: Remover diretório antigo
+      file:
+        path: /opt/tomcat9/apache-tomcat-9.0.71/
+        state: absent 
+
+
+
+    
     - name: Muda o aqruivo server.xml para server.xml_bkp
       copy:
         src: /opt/tomcat9/conf/server.xml
