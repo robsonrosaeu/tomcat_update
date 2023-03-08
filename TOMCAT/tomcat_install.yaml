@@ -7,14 +7,9 @@
 
   tasks:
    - name: Update do sistema
-     command: "yum update -y"
+     command: "yum update -y && yum install java -y"
      register: update
-   
-   tasks:
-   - name: Update do sistema
-     command: "yum install java -y"
-     
-     
+           
    - name: Install a list of packages
      yum:
        name: "{{ packages }}"
@@ -36,16 +31,16 @@
      ignore_errors: true
 
 
-   #- name: printa a versão do java 
-     #debug:
-       #var: java_check.stderr_lines 
+   - name: printa a versão do java 
+     debug:
+       var: java_check.stderr_lines 
 
-   - name: Instalar o Java
-     yum:
-      name: java-11-openjdk-devel
-      state: latest
-     when: java_check.stat.exists == false
-     ignore_errors: true
+   #- name: Instalar o Java
+     #yum:
+      #name: java-11-openjdk-devel
+      #state: latest
+     #when: java_check.stat.exists == false
+     #ignore_errors: true
 
    - name: Criando grupo
      become: yes
