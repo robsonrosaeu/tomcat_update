@@ -38,7 +38,7 @@
    - name: Instalar o Java
      yum:
       name: java-11-openjdk-devel
-      state: present
+      state: latest
      when: java_check.stat.exists == true
      ignore_errors: true
 
