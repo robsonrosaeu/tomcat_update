@@ -31,9 +31,9 @@
      ignore_errors: true
 
 
-   - name: printa a versão do java 
-     debug:
-       var: java_check.stderr_lines 
+   #- name: printa a versão do java 
+     #debug:
+       #var: java_check.stderr_lines 
 
    - name: Instalar o Java
      yum:
