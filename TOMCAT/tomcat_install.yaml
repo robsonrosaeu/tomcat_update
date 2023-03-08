@@ -2,7 +2,7 @@
 - name: Download Tomcat8 
   hosts: all
   vars:
-    download_url: https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.86/bin/apache-tomcat-8.5.86.zip
+    download_url: https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.87/bin/apache-tomcat-8.5.87.zip
   
 
   tasks:
@@ -48,7 +48,7 @@
    - name: Criando diretorio /opt/tomcat8
      become: yes
      file:
-       path: /opt/tomcat8
+       path: /opt/tomcat
        state: directory
        mode: 0755
        owner: tomcat
@@ -58,7 +58,7 @@
      become: yes
      unarchive:
        src: "{{download_url}}"
-       dest: /opt/tomcat8/
+       dest: /opt/tomcat/
        mode: 0755
        remote_src: yes
        group: tomcat
@@ -76,12 +76,12 @@
         [Service]
         Type=forking
         User=tomcat
-        Environment="CATALINA_PID=/opt/tomcat8/apache-tomcat-8.5.85/logs/tomcat.pid"
-        Environment="CATALINA_BASE=/opt/tomcat8/apache-tomcat-8.5.85"
-        Environment="CATALINA_HOME=/opt/tomcat8/apache-tomcat-8.5.85"
+        Environment="CATALINA_PID=/opt/tomcat/apache-tomcat-8.5.85/logs/tomcat.pid"
+        Environment="CATALINA_BASE=/opt/tomcat/apache-tomcat-8.5.85"
+        Environment="CATALINA_HOME=/opt/tomcat/apache-tomcat-8.5.85"
         Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
-        ExecStart=/opt/tomcat8/apache-tomcat-8.5.85/bin/startup.sh
-        ExecStop=/opt/tomcat8/apache-tomcat-8.5.85/shutdown.sh
+        ExecStart=/opt/tomcat/apache-tomcat-8.5.85/bin/startup.sh
+        ExecStop=/opt/tomcat/apache-tomcat-8.5.85/shutdown.sh
         Restart=on-abnormal
         [Install]
         WantedBy=multi-user.target
