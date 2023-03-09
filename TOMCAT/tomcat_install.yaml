@@ -7,7 +7,7 @@
 
   tasks:
    - name: Update do sistema
-     command: "yum update -y && yum install java -y"
+     command: "yum update -y"
      register: update
    
    - name: Instala o java
